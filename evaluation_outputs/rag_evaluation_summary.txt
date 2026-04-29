@@ -1,0 +1,7 @@
+RAG Evaluation Summary
+========================================
+sample_size: 30
+avg_top_retrieval_score: 1.0000000337759654
+avg_simple_bleu: 0.17988852608754544
+avg_rouge_l: 0.3145249594796706
+avg_latency_seconds: 5.681508215268453
