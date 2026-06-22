@@ -1,0 +1,10 @@
+{
+  "sample_size": 5,
+  "successful_evaluations": 5,
+  "avg_latency_seconds": 0.6525375366210937,
+  "avg_top_score": 1.0000000476837159,
+  "avg_retrieved_count": 2.2,
+  "avg_simple_bleu_score": 0.5120737425404944,
+  "avg_rouge_l_score": 0.8210526315789475,
+  "retrieval_success_rate": 1.0
+}

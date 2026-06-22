@@ -1,5 +1,6 @@
 import os
 import requests
+import requests.exceptions
 from dotenv import load_dotenv
 
 
@@ -17,9 +18,12 @@ class LLMGenerator:
         self.url = f"{self.base_url}/chat/completions"
 
     def build_prompt(self, query, retrieved_results):
-        context = "\n\n".join(
-            [f"Q: {r['question']}\nA: {r['answer']}" for r in retrieved_results[:5]]
-        )
+        if not retrieved_results:
+            context = "No similar support cases were found."
+        else:
+            context = "\n\n".join(
+                [f"Q: {r['question']}\nA: {r['answer']}" for r in retrieved_results[:5]]
+            )
 
         prompt = f"""
 You are a professional Amazon customer support assistant.
@@ -46,6 +50,18 @@ Answer naturally like a real support agent.
 
         return prompt
 
+    def fallback_answer(self, retrieved_results):
+        if retrieved_results and len(retrieved_results) >= 1 and retrieved_results[0].get("answer"):
+            answer = retrieved_results[0]["answer"]
+            return (
+                "Based on similar support cases, here is the most relevant available guidance:\n\n" + answer
+            )
+
+        return (
+            "I'm sorry, I couldn't find enough relevant information in the support knowledge base. "
+            "Please contact official customer support for more accurate help."
+        )
+
     def generate(self, query, retrieved_results):
         prompt = self.build_prompt(query, retrieved_results)
 
@@ -61,18 +77,25 @@ Answer naturally like a real support agent.
             ]
         }
 
-        response = requests.post(self.url, headers=headers, json=data, timeout=60)
+        try:
+            response = requests.post(self.url, headers=headers, json=data, timeout=60)
+        except requests.exceptions.RequestException:
+            return self.fallback_answer(retrieved_results)
 
         if response.status_code != 200:
-            return (
-                "The LLM service is currently unavailable. "
-                "Here is a suggested response based on similar support cases:\n\n"
-                f"{retrieved_results[0]['answer']}"
-            )
-
-        result = response.json()
+            return self.fallback_answer(retrieved_results)
 
         try:
-            return result["choices"][0]["message"]["content"]
-        except:
-            return str(result)
+            result = response.json()
+        except Exception:
+            return self.fallback_answer(retrieved_results)
+
+        try:
+            content = result["choices"][0]["message"]["content"]
+        except Exception:
+            return self.fallback_answer(retrieved_results)
+
+        if not content or str(content).strip() == "":
+            return self.fallback_answer(retrieved_results)
+
+        return content

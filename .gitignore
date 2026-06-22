@@ -1,0 +1,20 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.venv/
+.ipynb_checkpoints/
+.DS_Store
+*.log
+mlruns/
+data/raw/
+vector_store/*.index.tmp
+logs/
+
+# Keep processed_data and vector_store (final assets) in repo unless very large
+# Do not ignore: processed_data/
+# Do not ignore: vector_store/

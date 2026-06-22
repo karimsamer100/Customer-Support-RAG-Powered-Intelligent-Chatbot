@@ -4,4 +4,16 @@ __pycache__/
 .venv/
 venv/
 .git/
+.gitignore
+.ipynb_checkpoints/
+.DS_Store
+*.log
+mlruns/
+evaluation_results/
 .cache/
+*.tmp
+logs/
+
+# Keep vector_store and processed_data in the image
+!vector_store/
+!processed_data/

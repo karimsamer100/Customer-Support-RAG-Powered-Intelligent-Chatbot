@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Support Portal Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    textarea { width: 100%; height: 120px; }
+    input[type=text] { width: 100%; }
+    .box { margin-bottom: 12px; }
+    .result { border: 1px solid #ddd; padding: 10px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Support Portal Demo</h1>
+  <div class="box">
+    <label>API Base URL</label>
+    <input id="apiBase" type="text" value="http://127.0.0.1:8000" />
+  </div>
+  <div class="box">
+    <label>API Key</label>
+    <input id="apiKey" type="text" value="demo-key" />
+  </div>
+  <div class="box">
+    <label>Your question</label>
+    <textarea id="question"></textarea>
+  </div>
+  <div class="box">
+    <label>Top K</label>
+    <input id="topk" type="text" value="5" />
+  </div>
+  <div class="box">
+    <button id="askBtn">Ask Chatbot</button>
+  </div>
+  <h2>Answer</h2>
+  <div id="answer" class="result"></div>
+  <h2>Metadata</h2>
+  <div id="meta" class="result"></div>
+
+  <h2>Feedback</h2>
+  <div class="box">
+    <label>Rating (1-5)</label>
+    <input id="rating" type="text" value="5" />
+  </div>
+  <div class="box">
+    <label>Comment</label>
+    <input id="comment" type="text" />
+  </div>
+  <div class="box">
+    <button id="fbBtn">Send Feedback</button>
+  </div>
+  <div id="fbStatus"></div>
+
+<script>
+document.getElementById('askBtn').addEventListener('click', async () => {
+  const base = document.getElementById('apiBase').value;
+  const key = document.getElementById('apiKey').value;
+  const question = document.getElementById('question').value;
+  const topk = parseInt(document.getElementById('topk').value || '5');
+
+  const res = await fetch(base + '/ask', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key
+    },
+    body: JSON.stringify({ question: question, top_k: topk })
+  });
+
+  const data = await res.json();
+  document.getElementById('answer').innerText = data.answer || JSON.stringify(data);
+
+  const meta = {
+    retrieved_count: data.retrieved_count || 0,
+    top_score: data.top_score || 0.0,
+    retrieved_cases: data.retrieved_cases || []
+  };
+  document.getElementById('meta').innerText = JSON.stringify(meta, null, 2);
+});
+
+document.getElementById('fbBtn').addEventListener('click', async () => {
+  const base = document.getElementById('apiBase').value;
+  const key = document.getElementById('apiKey').value;
+  const question = document.getElementById('question').value;
+  const answer = document.getElementById('answer').innerText;
+  const rating = parseInt(document.getElementById('rating').value || '5');
+  const comment = document.getElementById('comment').value;
+
+  const res = await fetch(base + '/feedback', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key
+    },
+    body: JSON.stringify({ question: question, answer: answer, rating: rating, comment: comment })
+  });
+
+  const data = await res.json();
+  document.getElementById('fbStatus').innerText = JSON.stringify(data);
+});
+</script>
+</body>
+</html>
