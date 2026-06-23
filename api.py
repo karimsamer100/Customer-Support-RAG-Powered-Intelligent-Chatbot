@@ -243,54 +243,128 @@ def dashboard():
         fb = summary.get("feedback", {})
         ev = summary.get("evaluation", {})
 
+        # Safe formatting helpers
+        def fmt_float(v, ndigits=3):
+            try:
+                return f"{float(v):.{ndigits}f}"
+            except Exception:
+                return "N/A"
+
+        def fmt_int(v):
+            try:
+                return str(int(v))
+            except Exception:
+                return "N/A"
+
+        def fmt_pct(v, ndigits=3):
+            try:
+                return f"{float(v) * 100:.{ndigits}f}%"
+            except Exception:
+                return "N/A"
+
+        # Requests
+        req_total = fmt_int(req.get("total_requests", 0))
+        req_success = fmt_int(req.get("successful_requests", 0))
+        req_failed = fmt_int(req.get("failed_requests", 0))
+        req_avg_latency = fmt_float(req.get("avg_latency_seconds", 0.0), 3)
+        req_avg_retrieved = fmt_float(req.get("avg_retrieved_count", 0.0), 3)
+        req_avg_top_score = fmt_float(req.get("avg_top_score", 0.0), 3)
+        req_retrieval_rate = fmt_pct(req.get("retrieval_success_rate", 0.0), 3)
+
+        # Feedback
+        fb_total = fmt_int(fb.get("total_feedback", 0))
+        fb_avg_rating = fmt_float(fb.get("avg_rating", 0.0), 3)
+        fb_positive = fmt_int(fb.get("positive_feedback_count", 0))
+        fb_negative = fmt_int(fb.get("negative_feedback_count", 0))
+
+        # Evaluation
+        ev_sample = fmt_int(ev.get("sample_size", "N/A"))
+        ev_avg_latency = fmt_float(ev.get("avg_latency_seconds", "N/A"), 3)
+        ev_avg_top_score = fmt_float(ev.get("avg_top_score", "N/A"), 3)
+        ev_retrieval_rate = fmt_pct(ev.get("retrieval_success_rate", "N/A"), 3)
+
+        env_label = ENVIRONMENT or "unknown"
+
         html = f"""
         <html>
         <head>
-            <title>RAG Demo Monitoring Dashboard</title>
+            <meta http-equiv="refresh" content="30">
+            <title>Customer Support RAG Monitoring Dashboard</title>
             <style>
-                body {{ font-family: Arial, sans-serif; margin: 20px; }}
-                .card {{ border: 1px solid #ddd; padding: 12px; margin-bottom: 12px; border-radius: 6px; }}
-                h2 {{ margin-top: 0; }}
-                table {{ border-collapse: collapse; width: 100%; }}
-                td, th {{ border: 1px solid #eee; padding: 8px; }}
+                :root {{ --bg:#0b1220; --card:#0f1a2b; --muted:#9aa7bf; --accent:#1e90ff; --glass: rgba(255,255,255,0.04); }}
+                html,body {{ height:100%; margin:0; font-family: Inter, Roboto, Arial, sans-serif; background: linear-gradient(180deg, #071024 0%, #081122 100%); color:#e6eef8; }}
+                .container {{ max-width:1200px; margin:24px auto; padding:20px; }}
+                header {{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }}
+                .title {{ font-size:20px; font-weight:700; margin:0; color:#ffffff; }}
+                .subtitle {{ margin:6px 0 0 0; color:var(--muted); font-size:13px; }}
+                .badges {{ display:flex; gap:8px; align-items:center; }}
+                .badge {{ background:var(--glass); border:1px solid rgba(255,255,255,0.06); padding:6px 10px; border-radius:999px; color:var(--muted); font-size:12px; }}
+                .badge.online {{ color:#bff0c6; border-color:rgba(30,200,80,0.15); background:linear-gradient(90deg, rgba(30,200,80,0.05), transparent); }}
+                .grid {{ display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; margin-top:20px; }}
+                .section {{ background:var(--card); padding:16px; border-radius:12px; box-shadow: 0 6px 18px rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.03); }}
+                .section h3 {{ margin:0 0 12px 0; font-size:16px; color:#dff0ff; }}
+                .metrics {{ display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; }}
+                .metric {{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid rgba(255,255,255,0.02); }}
+                .m-label {{ color:var(--muted); font-size:12px; }}
+                .m-value {{ font-weight:700; font-size:16px; color:#fff; }}
+                footer {{ margin-top:20px; color:var(--muted); font-size:13px; text-align:center; }}
+                @media (max-width:900px) {{ .grid {{ grid-template-columns: 1fr; }} .metrics {{ grid-template-columns: 1fr 1fr; }} }}
+                @media (max-width:600px) {{ .metrics {{ grid-template-columns: 1fr; }} }}
             </style>
         </head>
         <body>
-            <h1>RAG Demo Monitoring Dashboard</h1>
-            <div class="card">
-                <h2>Requests</h2>
-                <table>
-                    <tr><th>Total Requests</th><td>{req.get('total_requests', 0)}</td></tr>
-                    <tr><th>Successful Requests</th><td>{req.get('successful_requests', 0)}</td></tr>
-                    <tr><th>Failed Requests</th><td>{req.get('failed_requests', 0)}</td></tr>
-                    <tr><th>Average Latency (s)</th><td>{req.get('avg_latency_seconds', 0.0):.3f}</td></tr>
-                    <tr><th>Average Retrieved Count</th><td>{req.get('avg_retrieved_count', 0.0):.2f}</td></tr>
-                    <tr><th>Average Top Score</th><td>{req.get('avg_top_score', 0.0):.3f}</td></tr>
-                    <tr><th>Retrieval Success Rate</th><td>{req.get('retrieval_success_rate', 0.0):.3f}</td></tr>
-                </table>
-            </div>
+            <div class="container">
+                <header>
+                    <div>
+                        <div class="title">Customer Support RAG Monitoring Dashboard</div>
+                        <div class="subtitle">Live demo monitoring for RAG chatbot requests, feedback, and evaluation metrics</div>
+                    </div>
+                    <div class="badges">
+                        <div class="badge online">Service: Online</div>
+                        <div class="badge">Environment: {env_label}</div>
+                        <div class="badge">Demo Dashboard</div>
+                    </div>
+                </header>
 
-            <div class="card">
-                <h2>Feedback</h2>
-                <table>
-                    <tr><th>Total Feedback</th><td>{fb.get('total_feedback', 0)}</td></tr>
-                    <tr><th>Average Rating</th><td>{fb.get('avg_rating', 0.0):.2f}</td></tr>
-                    <tr><th>Positive</th><td>{fb.get('positive_feedback_count', 0)}</td></tr>
-                    <tr><th>Negative</th><td>{fb.get('negative_feedback_count', 0)}</td></tr>
-                </table>
-            </div>
+                <div class="grid">
+                    <div class="section">
+                        <h3>Requests</h3>
+                        <div class="metrics">
+                            <div class="metric"><div class="m-label">Total Requests</div><div class="m-value">{req_total}</div></div>
+                            <div class="metric"><div class="m-label">Successful Requests</div><div class="m-value">{req_success}</div></div>
+                            <div class="metric"><div class="m-label">Failed Requests</div><div class="m-value">{req_failed}</div></div>
+                            <div class="metric"><div class="m-label">Average Latency (s)</div><div class="m-value">{req_avg_latency}</div></div>
+                            <div class="metric"><div class="m-label">Average Retrieved Count</div><div class="m-value">{req_avg_retrieved}</div></div>
+                            <div class="metric"><div class="m-label">Average Top Score</div><div class="m-value">{req_avg_top_score}</div></div>
+                            <div class="metric" style="grid-column:span 2;"><div class="m-label">Retrieval Success Rate</div><div class="m-value">{req_retrieval_rate}</div></div>
+                        </div>
+                    </div>
 
-            <div class="card">
-                <h2>Evaluation</h2>
-                <table>
-                    <tr><th>Sample Size</th><td>{ev.get('sample_size', 'N/A')}</td></tr>
-                    <tr><th>Avg Latency (s)</th><td>{ev.get('avg_latency_seconds', 'N/A')}</td></tr>
-                    <tr><th>Avg Top Score</th><td>{ev.get('avg_top_score', 'N/A')}</td></tr>
-                    <tr><th>Retrieval Success Rate</th><td>{ev.get('retrieval_success_rate', 'N/A')}</td></tr>
-                </table>
-            </div>
+                    <div class="section">
+                        <h3>Feedback</h3>
+                        <div class="metrics">
+                            <div class="metric"><div class="m-label">Total Feedback</div><div class="m-value">{fb_total}</div></div>
+                            <div class="metric"><div class="m-label">Average Rating</div><div class="m-value">{fb_avg_rating}</div></div>
+                            <div class="metric"><div class="m-label">Positive Feedback</div><div class="m-value">{fb_positive}</div></div>
+                            <div class="metric"><div class="m-label">Negative Feedback</div><div class="m-value">{fb_negative}</div></div>
+                        </div>
+                    </div>
 
-            <p><em>This dashboard is for demo purposes only.</em></p>
+                    <div class="section">
+                        <h3>Evaluation</h3>
+                        <div class="metrics">
+                            <div class="metric"><div class="m-label">Sample Size</div><div class="m-value">{ev_sample}</div></div>
+                            <div class="metric"><div class="m-label">Avg Evaluation Latency (s)</div><div class="m-value">{ev_avg_latency}</div></div>
+                            <div class="metric"><div class="m-label">Avg Evaluation Top Score</div><div class="m-value">{ev_avg_top_score}</div></div>
+                            <div class="metric" style="grid-column:span 2;"><div class="m-label">Evaluation Retrieval Success Rate</div><div class="m-value">{ev_retrieval_rate}</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer>
+                    This lightweight dashboard is built for monitoring demo purposes. Production systems can integrate Azure Application Insights, Grafana, or Power BI.
+                </footer>
+            </div>
         </body>
         </html>
         """

@@ -1,122 +1,115 @@
 # Customer Support RAG-Powered Intelligent Chatbot
 
-A production-oriented customer support automation project that combines **Retrieval-Augmented Generation (RAG)**, **FAISS vector search**, **SentenceTransformer embeddings**, **FastAPI**, lightweight **monitoring**, feedback logging, evaluation reports, and deployment-ready configuration.
+A cloud-deployed, production-oriented **Customer Support RAG Chatbot** that combines **Retrieval-Augmented Generation**, **FAISS vector search**, **SentenceTransformer embeddings**, **FastAPI**, **monitoring dashboard**, **feedback logging**, **evaluation reports**, Docker deployment, and lightweight MLOps utilities.
 
-The chatbot receives a customer support question, retrieves similar historical support cases from a vector database, and uses an LLM to generate a helpful response grounded in real support data.
+The system answers customer support questions by retrieving similar historical support cases and using them as grounding context for LLM-based answer generation.
 
 ---
 
-## Table of Contents
+## Live Deployment
 
-* [Project Overview](#project-overview)
-* [Problem Statement](#problem-statement)
-* [Key Features](#key-features)
-* [Milestone Coverage](#milestone-coverage)
-* [System Architecture](#system-architecture)
-* [Dataset](#dataset)
-* [Preprocessing and EDA](#preprocessing-and-eda)
-* [RAG Pipeline](#rag-pipeline)
-* [API Endpoints](#api-endpoints)
-* [Monitoring Dashboard and Feedback](#monitoring-dashboard-and-feedback)
-* [Evaluation Results](#evaluation-results)
-* [MLOps and Re-indexing](#mlops-and-re-indexing)
-* [Deployment](#deployment)
-* [Project Structure](#project-structure)
-* [Setup Instructions](#setup-instructions)
-* [Environment Variables](#environment-variables)
-* [Run the Project](#run-the-project)
-* [Demo Commands](#demo-commands)
-* [Security Notes](#security-notes)
-* [Limitations](#limitations)
-* [Future Work](#future-work)
+The chatbot API is deployed as a public cloud service on Railway.
+
+| Resource             | URL                                                             |
+| -------------------- | --------------------------------------------------------------- |
+| Public API Root      | https://support-rag-chatbot-production.up.railway.app           |
+| Health Check         | https://support-rag-chatbot-production.up.railway.app/health    |
+| Interactive API Docs | https://support-rag-chatbot-production.up.railway.app/docs      |
+| Monitoring Dashboard | https://support-rag-chatbot-production.up.railway.app/dashboard |
+
+> Note: Protected endpoints such as `/ask`, `/feedback`, and `/metrics` require the `x-api-key` header.
 
 ---
 
 ## Project Overview
 
-This project implements an intelligent customer support chatbot powered by **Retrieval-Augmented Generation**.
+This project implements an intelligent customer support automation system using **Retrieval-Augmented Generation (RAG)**.
 
-Instead of relying only on the LLM’s general knowledge, the system first retrieves similar real support conversations from a vector store, then gives those retrieved cases to the LLM as context. This makes the final answer more relevant to the support domain and allows the chatbot to reuse historical support knowledge.
+Instead of relying only on the LLM’s general knowledge, the chatbot first retrieves semantically similar historical support cases from a vector database, then passes those retrieved cases to the LLM as context. This makes the generated answer more grounded, relevant, and aligned with real support data.
 
 The project includes:
 
-* Historical support data preprocessing
+* Historical customer support data preprocessing
 * Exploratory data analysis
-* Embeddings using `sentence-transformers/all-MiniLM-L6-v2`
-* FAISS vector search
+* SentenceTransformer embeddings
+* FAISS semantic vector search
 * RAG-based answer generation
 * FastAPI REST API
 * API key security
+* Public cloud deployment
 * Monitoring dashboard
-* User feedback endpoint
-* Evaluation scripts and reports
-* Docker and Render deployment preparation
-* Azure deployment documentation
+* Feedback collection
+* Evaluation metrics and reports
+* Docker deployment
+* Railway deployment
+* Azure App Service deployment documentation
 * Lightweight MLOps and re-indexing scripts
 
 ---
 
 ## Problem Statement
 
-Customer support teams receive many repeated questions about orders, refunds, delivery, account issues, and product problems. Handling these questions manually can increase response time, support cost, and agent workload.
+Customer support teams receive many repeated questions about orders, refunds, delivery delays, account issues, and product problems.
 
-This project solves the problem by building a chatbot that can:
+Manually answering these repeated questions can lead to:
 
-1. Understand the customer question semantically.
-2. Retrieve similar historical support cases.
-3. Generate a response using an LLM grounded in retrieved support examples.
-4. Expose the system through a REST API that can be integrated into a support portal.
-5. Track latency, retrieval quality, and user satisfaction for monitoring.
+* Slower first response time
+* Higher support cost
+* Increased agent workload
+* Inconsistent support answers
+* Lower customer satisfaction
+
+This project addresses the problem by creating a chatbot that can retrieve relevant historical support cases and generate helpful answers automatically.
 
 ---
 
 ## Key Features
 
-* **Data ingestion and preprocessing** for AmazonHelp support conversations
-* **Text cleaning** for URLs, mentions, extra spaces, and noisy support patterns
-* **EDA outputs** for issue categories and frequent question/answer terms
-* **SentenceTransformer embeddings** using `all-MiniLM-L6-v2`
-* **FAISS vector database** for semantic retrieval
-* **RAG pipeline** with retrieval + LLM generation
-* **Fallback handling** when retrieval or generation fails
-* **FastAPI service** with `/ask`, `/health`, `/metrics`, `/feedback`, and `/dashboard`
-* **API key authentication** using the `x-api-key` header
-* **Monitoring dashboard** for latency, success/failure count, retrieval score, and feedback
-* **Feedback logging** for satisfaction score tracking
-* **Evaluation pipeline** with BLEU-like, ROUGE-L, latency, and retrieval metrics
-* **Optional MLflow tracking helper** for evaluation metrics
-* **Manual re-indexing script** to refresh embeddings and FAISS index
-* **Dockerfile** and `render.yaml` for deployment preparation
-* **Azure App Service deployment guide**
-* **Support portal demo page** using plain HTML/JavaScript
+* **RAG-powered support chatbot**
+* **Semantic retrieval** using FAISS
+* **SentenceTransformer embeddings** using `sentence-transformers/all-MiniLM-L6-v2`
+* **FastAPI REST API**
+* **Cloud deployment on Railway**
+* **Dockerized application**
+* **API key authentication**
+* **Monitoring dashboard**
+* **Request metrics endpoint**
+* **User feedback endpoint**
+* **Evaluation reports**
+* **BLEU-like and ROUGE-L scoring**
+* **Latency and retrieval tracking**
+* **Optional MLflow tracking helper**
+* **Manual re-indexing / retraining script**
+* **Support portal integration demo**
+* **Azure deployment documentation**
 
 ---
 
 ## Milestone Coverage
 
-| Milestone   | Requirement                          | Current Project Status                                                                                                   |
-| ----------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| Milestone 1 | Data collection and preprocessing    | Implemented using historical AmazonHelp support conversations, preprocessing notebook, processed corpus, and EDA outputs |
-| Milestone 1 | Processed text corpus                | Implemented: `processed_data/processed_amazon_support.csv`                                                               |
-| Milestone 1 | Preprocessing pipeline documentation | Implemented: `docs/preprocessing_pipeline.md`                                                                            |
-| Milestone 1 | Support data EDA report              | Implemented through EDA notebook, EDA outputs, and documentation                                                         |
-| Milestone 2 | Vector store                         | Implemented with FAISS: `vector_store/faiss_index.bin` and `vector_store/metadata.csv`                                   |
-| Milestone 2 | RAG model configuration              | Implemented using SentenceTransformer embeddings + FAISS retrieval + LLM generator                                       |
-| Milestone 2 | Evaluation metrics                   | Implemented: `evaluate_rag.py` and `evaluation_results/`                                                                 |
-| Milestone 2 | Optimization                         | Implemented partially through similarity threshold, top-k retrieval, fallback handling, and evaluation support           |
-| Milestone 3 | REST API                             | Implemented with FastAPI                                                                                                 |
-| Milestone 3 | Workflow/support portal integration  | Demo implemented: `support_portal_demo/index.html`                                                                       |
-| Milestone 3 | Security                             | Implemented using `x-api-key`; Azure AD is documented as future production enhancement                                   |
-| Milestone 3 | Azure deployment                     | Azure App Service deployment guide provided; actual Azure deployment must be performed separately if required            |
-| Milestone 4 | Experiment tracking                  | Optional helper implemented: `mlflow_tracking.py`                                                                        |
-| Milestone 4 | Monitoring dashboard                 | Implemented: `/dashboard`, `/metrics`, and `monitoring.py`                                                               |
-| Milestone 4 | User satisfaction tracking           | Implemented: `/feedback` endpoint and feedback logs                                                                      |
-| Milestone 4 | Retraining/re-indexing               | Implemented as manual refresh script: `refresh_index.py`; scheduled automation is future work                            |
-| Milestone 5 | Final documentation                  | Implemented through README and docs folder                                                                               |
-| Milestone 5 | Demo presentation outline            | Implemented: `PRESENTATION_OUTLINE.md`                                                                                   |
-| Milestone 5 | Business KPI impact analysis         | Implemented: `docs/business_kpi_impact.md`                                                                               |
-
-> Note: The project is demo-ready and production-oriented. Some enterprise features such as Azure AD, fully automated scheduled retraining, and full cloud observability are documented as future production enhancements.
+| Milestone   | Requirement                 | Project Status                                                |
+| ----------- | --------------------------- | ------------------------------------------------------------- |
+| Milestone 1 | Data ingestion              | Implemented using historical AmazonHelp support conversations |
+| Milestone 1 | Text preprocessing          | Implemented with cleaning and processed corpus generation     |
+| Milestone 1 | EDA                         | Implemented using notebooks and EDA outputs                   |
+| Milestone 1 | Processed corpus            | Available in `processed_data/`                                |
+| Milestone 1 | Preprocessing documentation | Available in `docs/preprocessing_pipeline.md`                 |
+| Milestone 2 | Vector store                | Implemented using FAISS                                       |
+| Milestone 2 | RAG pipeline                | Implemented using SentenceTransformer + FAISS + LLM           |
+| Milestone 2 | Evaluation                  | Implemented using `evaluate_rag.py` and `evaluation_results/` |
+| Milestone 2 | Optimization                | Similarity threshold, top-k retrieval, fallback handling      |
+| Milestone 3 | REST API                    | Implemented using FastAPI                                     |
+| Milestone 3 | Workflow integration        | Demo support portal included                                  |
+| Milestone 3 | Security                    | Implemented using `x-api-key` authentication                  |
+| Milestone 3 | Deployment                  | Deployed publicly on Railway; Azure deployment guide included |
+| Milestone 4 | MLflow tracking             | Optional helper implemented in `mlflow_tracking.py`           |
+| Milestone 4 | Monitoring dashboard        | Implemented through `/dashboard`                              |
+| Milestone 4 | Accuracy/latency monitoring | Implemented through `/metrics` and evaluation reports         |
+| Milestone 4 | User satisfaction tracking  | Implemented through `/feedback`                               |
+| Milestone 4 | Retraining mechanism        | Manual re-indexing implemented using `refresh_index.py`       |
+| Milestone 5 | Final documentation         | README and docs folder included                               |
+| Milestone 5 | Demo presentation outline   | Included in `PRESENTATION_OUTLINE.md`                         |
+| Milestone 5 | Business KPI impact         | Included in `docs/business_kpi_impact.md`                     |
 
 ---
 
@@ -137,61 +130,108 @@ Prompt Construction
     ↓
 LLM Generation
     ↓
-Final Chatbot Answer + Retrieved Evidence + Monitoring Metadata
+Final Answer + Retrieved Evidence + Monitoring Metadata
 ```
+
+---
+
+## Technology Stack
+
+| Layer           | Tools                                               |
+| --------------- | --------------------------------------------------- |
+| Backend API     | FastAPI, Uvicorn                                    |
+| RAG Pipeline    | Python, SentenceTransformers, FAISS                 |
+| Embeddings      | `sentence-transformers/all-MiniLM-L6-v2`            |
+| Vector Search   | FAISS                                               |
+| LLM Integration | OpenAI-compatible chat completion API               |
+| Data Processing | Pandas, NumPy                                       |
+| Evaluation      | Custom BLEU-like, ROUGE-L, latency, retrieval score |
+| Monitoring      | JSONL logs, `/metrics`, `/dashboard`                |
+| Deployment      | Docker, Railway                                     |
+| Cloud Readiness | Azure App Service documentation                     |
+| MLOps           | Optional MLflow helper, re-indexing script          |
 
 ---
 
 ## Dataset
 
-The project uses historical customer support conversations filtered for **AmazonHelp** interactions.
+The project uses historical customer support conversations filtered for **AmazonHelp** support interactions.
 
-Main data files:
+Main dataset files:
 
 | File                                          | Description                                       |
 | --------------------------------------------- | ------------------------------------------------- |
-| `amazon_final_data.csv`                       | Filtered AmazonHelp support question/answer pairs |
+| `amazon_final_data.csv`                       | Filtered AmazonHelp support question-answer pairs |
 | `processed_data/processed_amazon_support.csv` | Cleaned and processed support corpus              |
-| `vector_store/metadata.csv`                   | Metadata used by the FAISS retrieval pipeline     |
-| `vector_store/faiss_index.bin`                | FAISS vector index file                           |
+| `vector_store/metadata.csv`                   | Metadata used for retrieval                       |
+| `vector_store/faiss_index.bin`                | FAISS vector index                                |
 
-Dataset summary from the current project state:
+Dataset summary:
 
-* Raw filtered AmazonHelp data: approximately **123k support pairs**
-* Processed support corpus: approximately **123k cleaned rows**
+* Filtered AmazonHelp dataset: approximately **123k support pairs**
+* Processed corpus: approximately **123k cleaned rows**
 * Current FAISS index metadata: **20,000 indexed rows** for demo/runtime efficiency
+
+> The current implementation focuses mainly on historical customer support conversations. FAQ, product manual, and full knowledge base ingestion are documented as future enhancements.
 
 ---
 
-## Preprocessing and EDA
+## Data Preprocessing
 
-The preprocessing pipeline prepares support conversations for retrieval.
+The preprocessing pipeline prepares the support data for embedding and retrieval.
 
-Typical preprocessing steps include:
+Main preprocessing steps:
 
-* Loading historical support conversations
-* Filtering AmazonHelp interactions
-* Removing noisy text patterns
-* Cleaning URLs, mentions, extra whitespace, and support-specific artifacts
-* Creating cleaned question and answer fields
-* Calculating basic text statistics
-* Saving a processed corpus for embedding and retrieval
+* Load historical support conversations
+* Filter AmazonHelp interactions
+* Remove noise and irrelevant patterns
+* Normalize URLs and support links
+* Remove mentions and extra whitespace
+* Create cleaned question and answer columns
+* Generate support categories and metadata
+* Save the processed corpus
 
 Important files:
 
 * `preprocessing.ipynb`
-* `eda.ipynb`
-* `docs/preprocessing_pipeline.md`
-* `eda_outputs/`
+* `DEPI_PROJECT.ipynb`
+* `depi_project.py`
 * `processed_data/processed_amazon_support.csv`
+* `docs/preprocessing_pipeline.md`
 
-EDA outputs include issue category analysis and frequent words in support questions and answers.
+---
+
+## Exploratory Data Analysis
+
+EDA was used to understand common customer support topics and support response patterns.
+
+EDA includes:
+
+* Common question terms
+* Common answer terms
+* Issue category distribution
+* Text statistics
+* Support topic exploration
+
+Important files and folders:
+
+* `eda.ipynb`
+* `eda_outputs/`
+* `docs/project_summary.md`
+
+Example issue categories:
+
+* Delivery and order tracking
+* Refunds
+* Product issues
+* Account issues
+* General support
 
 ---
 
 ## RAG Pipeline
 
-The RAG pipeline is implemented mainly in:
+The RAG pipeline is implemented across:
 
 * `embedder.py`
 * `build_index.py`
@@ -204,44 +244,54 @@ The RAG pipeline is implemented mainly in:
 sentence-transformers/all-MiniLM-L6-v2
 ```
 
-This model is lightweight and suitable for semantic similarity retrieval in a demo support chatbot.
+This model is lightweight, fast, and suitable for semantic similarity retrieval in a demo customer support system.
 
-### Vector Search
+### Vector Store
 
-The project uses **FAISS** with normalized embeddings and inner-product similarity, which works similarly to cosine similarity.
+The vector store is implemented with **FAISS**.
+
+Files:
+
+```text
+vector_store/faiss_index.bin
+vector_store/metadata.csv
+```
 
 ### Retrieval
 
-The system retrieves top-k similar support cases and filters weak matches using a similarity threshold.
+The retriever embeds the user query and searches the FAISS index for similar historical support cases.
 
-Current retrieval safety features:
+Retrieval safety features:
 
 * Empty query handling
-* Top-k clamping between 1 and 10
-* Invalid FAISS index handling
+* Top-k clamping
+* Invalid index handling
 * Duplicate retrieved-question removal
 * Minimum similarity threshold
 
 ### Generation
 
-The LLM receives retrieved support cases as context and generates a final answer. If the LLM call fails, the system falls back to the best retrieved support answer instead of crashing.
+Retrieved support cases are inserted into a prompt and sent to an LLM through an OpenAI-compatible API.
+
+If generation fails, the system returns a fallback response based on the most relevant retrieved support answer instead of crashing.
 
 ---
 
 ## API Endpoints
 
-The API is implemented using **FastAPI** in `api.py`.
+The API is implemented in `api.py`.
 
-| Method | Endpoint     | Auth | Description                        |
-| ------ | ------------ | ---- | ---------------------------------- |
-| GET    | `/`          | No   | Root service status                |
-| GET    | `/health`    | No   | Health check and pipeline status   |
-| POST   | `/ask`       | Yes  | Ask the chatbot a support question |
-| POST   | `/feedback`  | Yes  | Submit user satisfaction feedback  |
-| GET    | `/metrics`   | Yes  | Return monitoring metrics as JSON  |
-| GET    | `/dashboard` | No   | Demo monitoring dashboard          |
+| Method | Endpoint     | Auth | Description                           |
+| ------ | ------------ | ---- | ------------------------------------- |
+| GET    | `/`          | No   | Root service status                   |
+| GET    | `/health`    | No   | Health check and pipeline status      |
+| POST   | `/ask`       | Yes  | Ask the chatbot a support question    |
+| POST   | `/feedback`  | Yes  | Submit user satisfaction feedback     |
+| GET    | `/metrics`   | Yes  | Return monitoring metrics as JSON     |
+| GET    | `/dashboard` | No   | Monitoring dashboard                  |
+| GET    | `/docs`      | No   | FastAPI interactive API documentation |
 
-Protected endpoints use:
+Protected endpoints require:
 
 ```text
 x-api-key: <APP_API_KEY>
@@ -249,18 +299,61 @@ x-api-key: <APP_API_KEY>
 
 ---
 
-## Monitoring Dashboard and Feedback
+## Example API Usage
 
-The project includes a lightweight monitoring layer suitable for demo and academic evaluation.
+### Ask Endpoint - PowerShell
 
-Implemented monitoring components:
+```powershell
+Invoke-RestMethod `
+  -Uri "https://support-rag-chatbot-production.up.railway.app/ask" `
+  -Method Post `
+  -Headers @{"x-api-key"="YOUR_APP_API_KEY"} `
+  -ContentType "application/json" `
+  -Body '{"question":"Where is my order?","top_k":5}'
+```
 
-* `monitoring.py`
-* `/metrics` endpoint
-* `/dashboard` endpoint
-* `/feedback` endpoint
-* JSONL request logs
-* JSONL feedback logs
+Example response includes:
+
+* Question
+* Generated answer
+* Retrieved support cases
+* Latency
+* Top similarity score
+* Retrieved count
+* Status
+
+---
+
+### Feedback Endpoint - PowerShell
+
+```powershell
+Invoke-RestMethod `
+  -Uri "https://support-rag-chatbot-production.up.railway.app/feedback" `
+  -Method Post `
+  -Headers @{"x-api-key"="YOUR_APP_API_KEY"} `
+  -ContentType "application/json" `
+  -Body '{"question":"Where is my order?","answer":"Demo answer","rating":5,"comment":"Helpful"}'
+```
+
+---
+
+### Metrics Endpoint - PowerShell
+
+```powershell
+Invoke-RestMethod `
+  -Uri "https://support-rag-chatbot-production.up.railway.app/metrics" `
+  -Headers @{"x-api-key"="YOUR_APP_API_KEY"}
+```
+
+---
+
+## Monitoring Dashboard
+
+The project includes a lightweight monitoring dashboard available at:
+
+```text
+https://support-rag-chatbot-production.up.railway.app/dashboard
+```
 
 The dashboard tracks:
 
@@ -271,41 +364,40 @@ The dashboard tracks:
 * Average retrieved count
 * Average top similarity score
 * Retrieval success rate
-* Total feedback submissions
-* Average user rating
+* Feedback count
+* Average rating
+* Positive feedback count
+* Negative feedback count
 * Evaluation metrics
 
-Open the dashboard after starting the API:
+Monitoring components:
 
-```text
-http://127.0.0.1:8000/dashboard
-```
+* `monitoring.py`
+* `/metrics`
+* `/dashboard`
+* `/feedback`
+* JSONL request logs
+* JSONL feedback logs
 
-Run monitoring summary locally:
-
-```bash
-python monitoring.py
-```
-
-> The dashboard is a real lightweight monitoring dashboard for the demo. For enterprise production, it can be replaced or extended with Azure Application Insights, Grafana, or Power BI.
+> This dashboard is a lightweight implemented monitoring dashboard for demo and academic purposes. In production, it can be extended using Azure Application Insights, Grafana, or Power BI.
 
 ---
 
 ## Evaluation Results
 
-Evaluation is implemented in:
+Evaluation is implemented using:
 
 ```bash
 python evaluate_rag.py --sample-size 20 --top-k 5
 ```
 
-The evaluation outputs are saved in:
+Output files:
 
 * `evaluation_results/evaluation_details.csv`
 * `evaluation_results/evaluation_metrics.json`
 * `evaluation_results/evaluation_report.md`
 
-Current evaluation metrics from the latest run:
+Latest evaluation metrics:
 
 | Metric                  |         Value |
 | ----------------------- | ------------: |
@@ -318,56 +410,74 @@ Current evaluation metrics from the latest run:
 | ROUGE-L Score           |         0.821 |
 | Retrieval Success Rate  |         1.000 |
 
-> Evaluation is simplified for academic/demo purposes. BLEU-like and ROUGE-L scores help provide a quick sanity check but do not fully replace human review for support quality.
+> Evaluation is simplified for academic/demo purposes. BLEU-like and ROUGE-L provide a quick quality sanity check, but production evaluation should include unseen questions and human relevance scoring.
 
 ---
 
 ## MLOps and Re-indexing
 
-The project includes lightweight MLOps support:
+The project includes lightweight MLOps utilities.
 
-| Component              | File                  | Purpose                                        |
-| ---------------------- | --------------------- | ---------------------------------------------- |
-| Evaluation pipeline    | `evaluate_rag.py`     | Computes retrieval/generation metrics          |
-| Evaluation outputs     | `evaluation_results/` | Stores metrics and reports                     |
-| Optional MLflow helper | `mlflow_tracking.py`  | Logs evaluation metrics to MLflow if installed |
-| Monitoring helpers     | `monitoring.py`       | Logs requests and feedback                     |
-| Re-indexing script     | `refresh_index.py`    | Rebuilds FAISS index using `build_index.py`    |
+| Component                | File                  | Purpose                                        |
+| ------------------------ | --------------------- | ---------------------------------------------- |
+| Evaluation pipeline      | `evaluate_rag.py`     | Computes retrieval and generation metrics      |
+| Evaluation outputs       | `evaluation_results/` | Stores metrics and reports                     |
+| Monitoring helper        | `monitoring.py`       | Logs requests and feedback                     |
+| Optional MLflow tracking | `mlflow_tracking.py`  | Logs evaluation metrics to MLflow if installed |
+| Re-indexing script       | `refresh_index.py`    | Rebuilds the FAISS vector index                |
 
-Optional MLflow tracking:
+### Optional MLflow Tracking
 
 ```bash
 python mlflow_tracking.py
 ```
 
-Manual index refresh:
+If MLflow is installed, metrics are logged to MLflow. If not, a fallback tracking JSON is generated.
+
+### Manual Index Refresh
 
 ```bash
 python refresh_index.py
 ```
 
-In a production setting, this refresh process can be scheduled using cron, GitHub Actions, Azure Functions, or Azure ML pipelines.
+In a production environment, this process can be scheduled using cron, GitHub Actions, Azure Functions, or Azure ML pipelines.
 
 ---
 
 ## Deployment
 
-The project is prepared for local, Docker, Render, and Azure-style deployment.
+The application is deployed publicly using **Railway** and is also prepared for Docker, Render, and Azure App Service deployment.
 
-### Local Uvicorn
+### Railway Deployment
 
-```bash
-uvicorn api:app --host 0.0.0.0 --port 8000 --reload
+Live service:
+
+```text
+https://support-rag-chatbot-production.up.railway.app
 ```
 
-### Docker
+Railway deployment includes:
+
+* Docker-based build
+* Public HTTPS endpoint
+* Environment variables
+* Health check endpoint
+* API key protected endpoints
+* Monitoring dashboard
+* Feedback endpoint
+
+---
+
+### Docker Deployment
 
 ```bash
 docker build -t support-rag-chatbot .
 docker run -p 8000:8000 --env-file .env support-rag-chatbot
 ```
 
-### Render
+---
+
+### Render Deployment
 
 The repository includes:
 
@@ -375,15 +485,11 @@ The repository includes:
 render.yaml
 ```
 
-Basic Render flow:
+Render can deploy the same Dockerized service using environment variables and `/health` as a health check path.
 
-1. Push the project to GitHub.
-2. Create a Render Web Service.
-3. Use Docker deployment.
-4. Add environment variables in the Render dashboard.
-5. Deploy and test `/health`, `/ask`, and `/dashboard`.
+---
 
-### Azure
+### Azure App Service Readiness
 
 Azure deployment is documented in:
 
@@ -391,9 +497,15 @@ Azure deployment is documented in:
 docs/azure_deployment_guide.md
 ```
 
-The recommended Azure path is Docker-based deployment to **Azure App Service**. Required environment variables should be configured in Azure App Service Configuration.
+The codebase is ready for Docker-based deployment to Azure App Service. The same containerized application can be migrated to Azure by configuring:
 
-> The codebase is prepared for Azure App Service deployment, but an actual Azure deployment URL is not included unless you deploy it separately.
+* Azure App Service
+* Environment variables
+* Health check path `/health`
+* API key authentication
+* Optional Azure AD / Microsoft Entra ID authentication
+
+> Due to Azure subscription constraints, the live demo deployment was hosted on Railway. Azure deployment documentation is included to demonstrate cloud readiness and migration path.
 
 ---
 
@@ -468,7 +580,7 @@ GRAD_PROJECT/
 
 ## Setup Instructions
 
-### 1. Create a Virtual Environment
+### 1. Create Virtual Environment
 
 Windows PowerShell:
 
@@ -484,13 +596,17 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
+---
+
 ### 2. Install Requirements
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Create Environment File
+---
+
+### 3. Create `.env`
 
 Windows:
 
@@ -504,13 +620,11 @@ Linux/macOS:
 cp .env.example .env
 ```
 
-Then fill in the required keys inside `.env`.
+Fill in the required environment variables.
 
 ---
 
 ## Environment Variables
-
-The application expects:
 
 | Variable       | Description                                                 |
 | -------------- | ----------------------------------------------------------- |
@@ -520,7 +634,7 @@ The application expects:
 | `LLM_MODEL`    | LLM model name                                              |
 | `ENVIRONMENT`  | `development` or `production`                               |
 
-Example `.env.example`:
+Example:
 
 ```env
 LLM_API_KEY=your_llm_api_key_here
@@ -532,7 +646,7 @@ ENVIRONMENT=development
 
 ---
 
-## Run the Project
+## Run Locally
 
 ### Build or Refresh Vector Index
 
@@ -546,15 +660,23 @@ or:
 python refresh_index.py
 ```
 
+---
+
 ### Start API
 
 ```bash
 uvicorn api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### Health Check
-
 Open:
+
+```text
+http://127.0.0.1:8000
+```
+
+---
+
+### Health Check
 
 ```text
 http://127.0.0.1:8000/health
@@ -562,54 +684,10 @@ http://127.0.0.1:8000/health
 
 ---
 
-## Demo Commands
-
-### Ask Endpoint - PowerShell
-
-```powershell
-Invoke-RestMethod `
-  -Uri "http://127.0.0.1:8000/ask" `
-  -Method Post `
-  -Headers @{"x-api-key"="demo-key"} `
-  -ContentType "application/json" `
-  -Body '{"question":"Where is my order?","top_k":5}'
-```
-
-### Feedback Endpoint - PowerShell
-
-```powershell
-Invoke-RestMethod `
-  -Uri "http://127.0.0.1:8000/feedback" `
-  -Method Post `
-  -Headers @{"x-api-key"="demo-key"} `
-  -ContentType "application/json" `
-  -Body '{"question":"Where is my order?","answer":"Demo answer","rating":5,"comment":"Helpful"}'
-```
-
-### Metrics Endpoint - PowerShell
-
-```powershell
-Invoke-RestMethod `
-  -Uri "http://127.0.0.1:8000/metrics" `
-  -Headers @{"x-api-key"="demo-key"}
-```
-
-### Dashboard
+### Local Dashboard
 
 ```text
 http://127.0.0.1:8000/dashboard
-```
-
-### Evaluation
-
-```bash
-python evaluate_rag.py --sample-size 5 --top-k 5
-```
-
-### Monitoring Summary
-
-```bash
-python monitoring.py
 ```
 
 ---
@@ -622,12 +700,12 @@ A simple support portal integration demo is included in:
 support_portal_demo/index.html
 ```
 
-It demonstrates how a support portal can:
+It demonstrates how a business support portal can:
 
-* Send a customer question to `/ask`
-* Display the generated answer
+* Send customer questions to `/ask`
+* Display chatbot answers
 * Show retrieval metadata
-* Submit user satisfaction feedback to `/feedback`
+* Submit feedback to `/feedback`
 
 ---
 
@@ -636,74 +714,78 @@ It demonstrates how a support portal can:
 Implemented security:
 
 * Protected endpoints use `x-api-key`
-* Secrets are loaded from `.env`
+* Secrets are stored in environment variables
 * `.env` is ignored by Git
-* `.env.example` is provided for safe configuration sharing
-* Runtime logs are ignored using `logs/`
+* `.env.example` is provided safely
+* Runtime logs are ignored
+* API keys are not hardcoded
 
 Important:
 
 * Do not commit `.env`
-* Do not commit API keys
-* Rotate any API keys that were accidentally committed in the past
-* Use stronger authentication such as Azure AD for enterprise production
-
----
-
-## Limitations
-
-* The current knowledge base mainly uses historical support conversations.
-* FAQ, product manual, and full knowledge base ingestion are documented as future expansion.
-* The FAISS index currently uses a subset of the processed corpus for demo efficiency.
-* Evaluation is simplified and should be extended with human relevance scoring for production.
-* Conversation memory is not implemented because it was not part of the core requirement.
-* Azure AD is not implemented; API key authentication is used for the demo.
-* Automated scheduled retraining is not implemented; manual re-indexing is available through `refresh_index.py`.
-
----
-
-## Future Work
-
-* Add FAQ, manuals, and knowledge base documents
-* Add conversation memory or LangChain memory
-* Deploy fully on Azure App Service
-* Add Azure AD authentication
-* Add CI/CD pipeline
-* Add Azure Application Insights or Grafana monitoring
-* Add scheduled embedding refresh
-* Add human review workflow
-* Add advanced human relevance evaluation
-* Add real support ticket backend integration
+* Do not commit real API keys
+* Rotate any leaked keys
+* Use Azure AD / Microsoft Entra ID for enterprise production
 
 ---
 
 ## Business KPI Impact
 
-| KPI                    | Expected Impact                                                 |
-| ---------------------- | --------------------------------------------------------------- |
-| First Response Time    | Faster answers for repeated customer questions                  |
-| Ticket Deflection Rate | Reduces repetitive tickets handled by human agents              |
-| Agent Productivity     | Agents can focus on complex cases instead of repeated questions |
-| Customer Satisfaction  | Faster and more consistent support responses                    |
-| Support Cost           | Lower operational load through automation                       |
+| KPI                    | Expected Impact                               |
+| ---------------------- | --------------------------------------------- |
+| First Response Time    | Faster answers for repeated support questions |
+| Ticket Deflection Rate | Reduces repetitive tickets handled by agents  |
+| Agent Productivity     | Allows agents to focus on complex issues      |
+| Customer Satisfaction  | Improves speed and consistency of support     |
+| Support Cost           | Reduces operational load through automation   |
+
+---
+
+## Limitations
+
+* The current corpus mainly uses historical support conversations.
+* FAQ, manual, and full knowledge base ingestion are future enhancements.
+* The FAISS index uses a subset of the processed corpus for demo efficiency.
+* Evaluation is simplified and should be extended with human scoring.
+* Conversation memory is not implemented.
+* Azure AD is not implemented; API key authentication is used for demo security.
+* Scheduled retraining is not automated yet; manual re-indexing is implemented.
+* Production observability can be improved with Azure Application Insights, Grafana, or Power BI.
+
+---
+
+## Future Work
+
+* Add FAQ, product manuals, and knowledge base documents
+* Add conversation memory
+* Add LangChain memory if required later
+* Deploy on Azure App Service
+* Add Azure AD / Microsoft Entra ID authentication
+* Add CI/CD pipeline
+* Add scheduled embedding refresh
+* Add advanced monitoring with Azure Application Insights or Grafana
+* Add human review workflow
+* Add advanced evaluation with unseen questions
+* Integrate with a real support ticket backend
 
 ---
 
 ## Final Demo Resources
 
-| File                                      | Purpose                                            |
-| ----------------------------------------- | -------------------------------------------------- |
-| `docs/project_summary.md`                 | Short explanation of the project                   |
-| `docs/demo_script.md`                     | Speaking script for the demo                       |
-| `docs/final_demo_commands.md`             | Commands for API, metrics, feedback, and dashboard |
-| `docs/final_submission_checklist.md`      | Final checklist before submission                  |
-| `evaluation_results/evaluation_report.md` | Model evaluation report                            |
-| `PRESENTATION_OUTLINE.md`                 | Presentation slide outline                         |
+| File                                      | Purpose                    |
+| ----------------------------------------- | -------------------------- |
+| `docs/project_summary.md`                 | Short project explanation  |
+| `docs/demo_script.md`                     | Speaking script for demo   |
+| `docs/final_demo_commands.md`             | API demo commands          |
+| `docs/final_submission_checklist.md`      | Final submission checklist |
+| `evaluation_results/evaluation_report.md` | Model evaluation report    |
+| `PRESENTATION_OUTLINE.md`                 | Slide outline              |
+| `docs/business_kpi_impact.md`             | Business KPI analysis      |
 
 ---
 
 ## Conclusion
 
-This project demonstrates a complete RAG-powered customer support chatbot workflow: data preprocessing, vector search, LLM answer generation, REST API access, monitoring, feedback collection, evaluation, deployment preparation, and lightweight MLOps support.
+This project demonstrates a complete RAG-powered customer support chatbot workflow: data preprocessing, semantic vector search, LLM answer generation, REST API access, public cloud deployment, monitoring dashboard, feedback collection, evaluation, Docker deployment, and lightweight MLOps support.
 
-It is suitable for an academic/demo submission and provides a strong foundation for future production deployment on Azure or other cloud platforms.
+It is suitable for an academic/demo submission and provides a strong foundation for future enterprise deployment on Azure or other cloud platforms.
