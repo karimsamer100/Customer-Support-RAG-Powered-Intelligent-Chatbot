@@ -18,3 +18,6 @@ logs/
 # Keep processed_data and vector_store (final assets) in repo unless very large
 # Do not ignore: processed_data/
 # Do not ignore: vector_store/
+
+docs/Customer_Support_RAG_Final_Report.docx
+demo/
